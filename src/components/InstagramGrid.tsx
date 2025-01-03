@@ -1,3 +1,4 @@
+// dumb component för att visa instagrams bilder som tar emot data från Api.tsx
 import { InstaType } from './Api';
 
 interface InstagramGridProps {

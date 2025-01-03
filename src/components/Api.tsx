@@ -1,3 +1,5 @@
+// smart component som hämtar data från en API och visar det i en grid och sköter logiken
+
 import { useState, useEffect } from 'react';
 import InstagramGrid from './InstagramGrid';
 
