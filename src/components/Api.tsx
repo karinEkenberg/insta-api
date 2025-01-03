@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
+import InstagramGrid from './InstagramGrid';
+
+export interface InstaType {
+  albumId: number;
+  url: string;
+  id: number;
+  thumbnailUrl: string;
+  title: string;
+}
 
 export default function Api() {
-  const [fetchPosts, setFetchPosts] = useState<Insta[]>([]);
+  const [fetchPosts, setFetchPosts] = useState<InstaType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  interface Insta {
-    albumId: number;
-    url: string;
-    id: number;
-    thumbnailUrl: string;
-    title: string;
-  }
-
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1200)); // Fejkar delay:en för att testa loading state
+        await new Promise((resolve) => setTimeout(resolve, 1200));
         const response = await fetch('https://jsonplaceholder.typicode.com/photos');
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -37,35 +39,11 @@ export default function Api() {
     <div style={{ padding: '20px' }}>
       <h2>Instagram API</h2>
       {loading ? (
-        <p>Loading...</p>
+        <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>
       ) : error ? (
         <p style={{ color: 'red' }}>Error: {error}</p>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '10px',
-          }}
-        >
-          {fetchPosts.map((insta: Insta, index: number) => (
-            <>
-              <figure key={insta.id} style={{ textAlign: 'center' }}>
-                <img
-                  key={index}
-                  src={insta.thumbnailUrl}
-                  alt={insta.title}
-                  style={{
-                    width: '100%',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                  }}
-                />
-                <figcaption style={{ fontSize: '14px', marginTop: '5px' }}>{insta.title}</figcaption>
-              </figure>
-            </>
-          ))}
-        </div>
+        <InstagramGrid posts={fetchPosts} />
       )}
     </div>
   );
