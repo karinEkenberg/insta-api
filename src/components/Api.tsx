@@ -1,61 +1,51 @@
-import React, { useState, useEffect } from "react";
+// smart component som hämtar data från en API och visar det i en grid och sköter logiken
+
+import { useState, useEffect } from 'react';
+import InstagramGrid from './InstagramGrid';
+
+export interface InstaType {
+  albumId: number;
+  url: string;
+  id: number;
+  thumbnailUrl: string;
+  title: string;
+}
 
 export default function Api() {
-  const [fetchPosts, setFetchPosts] = useState([]);
+  const [fetchPosts, setFetchPosts] = useState<InstaType[]>([]);
   const [error, setError] = useState<string | null>(null);
-
-  interface Insta {
-    albumId: number;
-    url: string;
-    id: number;
-    thumbnailUrl: string;
-    title: string;
-  }
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/photos")
-      .then((response) => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        const response = await fetch('https://jsonplaceholder.typicode.com/photos');
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return response.json();
-      })
-      .then((res) => setFetchPosts(res.slice(0, 10)))
-      .catch((err) => setError(err.message));
+        const data = await response.json();
+        setFetchPosts(data.slice(0, 10));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: '20px' }}>
       <h2>Instagram API</h2>
-      {error ? (
-        <p style={{ color: "red" }}>Error: {error}</p>
-      ) : fetchPosts.length > 0 ? (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            gap: "10px",
-          }}
-        >
-          {fetchPosts.map((insta: Insta) => (
-            <figure key={insta.id} style={{ textAlign: "center" }}>
-              <img
-                src={insta.thumbnailUrl}
-                alt={insta.title}
-                style={{
-                  width: "100%",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                }}
-              />
-              <figcaption style={{ fontSize: "14px", marginTop: "5px" }}>
-                {insta.title}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>
+      ) : error ? (
+        <p style={{ color: 'red' }}>Error: {error}</p>
       ) : (
-        <p>Loading...</p>
+        <InstagramGrid posts={fetchPosts} />
       )}
     </div>
   );
